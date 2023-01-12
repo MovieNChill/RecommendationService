@@ -1,2 +1,2 @@
 # RecommendationService
-Repositories to store the notebook for the recommandation service 
+Repositories for versionning the notebook for the recommandation service 
