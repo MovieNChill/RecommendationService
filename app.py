@@ -1,3 +1,5 @@
+print('IMPORT')
+
 from flask import Flask, request, jsonify
 from surprise import Reader, Dataset, SVD
 import pandas as pd

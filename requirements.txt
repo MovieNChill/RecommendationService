@@ -1,5 +1,5 @@
 Flask==2.0.2
+numpy
 scikit-surprise
-surprise
 pandas
 requests
