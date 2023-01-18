@@ -7,14 +7,59 @@ import pandas as pd
 import requests
 import zipfile
 
-
+recommendation_init_finished = False
 app = Flask(__name__)
 
+
+
+@app.route('/init', methods=['GET'])
+def init_recommandation():
+    #Extraction donnée
+    print('BEGIN INIT')
+    url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
+    r = requests.get(url, allow_redirects=True)
+    return "toto"
+    open('data.zip', 'wb').write(r.content)
+    print('finish download Zip')
+
+    with zipfile.ZipFile("data.zip","r") as zip_ref:
+        zip_ref.extractall(".")
+    # Create the Flask app
+    print('finish Extract All')
+    # Presentation
+    print("--------------------------------------------")
+    print("    Recommendation System - MovieNChill")
+    print("--------------------------------------------")
+
+    print("----------------DATA LOADING----------------")
+    # Load the dataset with data ratings
+    print("[LOG] Loading ratings dataset...")
+    ratings_data = pd.read_csv('ml-latest/ratings.csv')
+    ratings_reader = Reader()
+    ratings_data = Dataset.load_from_df(ratings_data[['userId', 'movieId', 'rating']], ratings_reader)
+    print("[SUCCESS] Ratings dataset loaded!")
+
+    # Load the dataset with movies informations
+    print("[LOG] Loading movies dataset...")
+    movies_data = pd.read_csv('ml-latest/movies.csv')
+    print("[SUCCESS] Movies dataset loaded!")
+
+    print("----------------TRAIN MODEL----------------")
+    print("[LOG] Training the model...")
+    print("[LOG] This may take a while...")
+    algo = SVD()
+    trainset = ratings_data.build_full_trainset()
+    algo.fit(trainset)
+    print("[SUCCESS] Model trained!")
+    recommendation_init_finished = True
+    return "Model trained"
 @app.route('/', methods=['GET'])
 def hello_world():
-    return "Hello World!
+    return "Hello World!"
 @app.route('/recommend', methods=['POST'])
 def recommend():
+    if(recommendation_init_finished == False):
+        return "road not yet available, wait a moment"
     # Get the user_id and desired_genre from the request
     print("[LOG] Received request!")
     user_id = request.json['user_id']
@@ -40,44 +85,6 @@ def recommend():
 if __name__ == '__main__':
   app.run()
 
-
-#Extraction donnée
-print('BEGIN INIT')
-url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
-r = requests.get(url, allow_redirects=True)
-
-open('data.zip', 'wb').write(r.content)
-print('finish download Zip')
-
-with zipfile.ZipFile("data.zip","r") as zip_ref:
-    zip_ref.extractall(".")
-# Create the Flask app
-print('finish Extract All')
-# Presentation
-print("--------------------------------------------")
-print("    Recommendation System - MovieNChill")
-print("--------------------------------------------")
-
-print("----------------DATA LOADING----------------")
-# Load the dataset with data ratings
-print("[LOG] Loading ratings dataset...")
-ratings_data = pd.read_csv('ml-latest/ratings.csv')
-ratings_reader = Reader()
-ratings_data = Dataset.load_from_df(ratings_data[['userId', 'movieId', 'rating']], ratings_reader)
-print("[SUCCESS] Ratings dataset loaded!")
-
-# Load the dataset with movies informations
-print("[LOG] Loading movies dataset...")
-movies_data = pd.read_csv('ml-latest/movies.csv')
-print("[SUCCESS] Movies dataset loaded!")
-
-print("----------------TRAIN MODEL----------------")
-print("[LOG] Training the model...")
-print("[LOG] This may take a while...")
-algo = SVD()
-trainset = ratings_data.build_full_trainset()
-algo.fit(trainset)
-print("[SUCCESS] Model trained!")
 
 
 
