@@ -3,4 +3,3 @@ surprise
 scikit-surprise
 pandas
 requests
-zipfile
