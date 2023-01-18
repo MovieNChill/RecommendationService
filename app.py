@@ -3,19 +3,24 @@ print('IMPORT')
 from flask import Flask, request, jsonify
 from surprise import Reader, Dataset, SVD
 import pandas as pd
+import threading
 
 import requests
 import zipfile
 
+global recommendation_init_finished 
 recommendation_init_finished = False
+lock = threading.Lock()
 app = Flask(__name__)
 
 
 
-@app.route('/init', methods=['GET'])
+
 def init_recommandation():
     #Extraction donnée
-    print('BEGIN INIT')
+    with lock:
+	    recommendation_init_finished = True
+    print('BEGIN INIT', recommendation_init_finished)
     url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
     r = requests.get(url, allow_redirects=True)
     return "toto"
@@ -51,13 +56,14 @@ def init_recommandation():
     trainset = ratings_data.build_full_trainset()
     algo.fit(trainset)
     print("[SUCCESS] Model trained!")
-    recommendation_init_finished = True
+
     return "Model trained"
 @app.route('/', methods=['GET'])
 def hello_world():
     return "Hello World!"
 @app.route('/recommend', methods=['POST'])
 def recommend():
+    print(recommendation_init_finished)
     if(recommendation_init_finished == False):
         return "road not yet available, wait a moment"
     # Get the user_id and desired_genre from the request
@@ -82,9 +88,15 @@ def recommend():
     recommended_movie_info = movies_data.loc[movies_data['movieId'] == recommended_movie_id]
     return jsonify({'recommended_movie': recommended_movie_info.to_dict()})
 
+def runAPP():
+    print('RUN APP')
+    app.run()
 if __name__ == '__main__':
-  app.run()
-
+  t1 = threading.Thread(target=runAPP)
+  t1.start()
+  t2 = threading.Thread(target=init_recommandation)
+  t2.start()
+  
 
 
 
