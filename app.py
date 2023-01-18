@@ -5,6 +5,7 @@ import threading
 
 import requests
 import zipfile
+import os.path
 
 # SHARED VALUES
 recommendation_init_finished = False
@@ -27,17 +28,20 @@ def init_recommandation():
     #Extraction donnée
 
   
+    if(os.path.exists("./ml-latest/ratings.csv") == False or os.path.exists("./ml-latest/movies.csv") == False ) :
+        print('BEGIN INIT')
+        url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
+        r = requests.get(url, allow_redirects=True)
+        open('data.zip', 'wb').write(r.content)
+        print('finish download Zip')
     
-    print('BEGIN INIT')
-    url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
-    r = requests.get(url, allow_redirects=True)
-    open('data.zip', 'wb').write(r.content)
-    print('finish download Zip')
-
-    with zipfile.ZipFile("data.zip","r") as zip_ref:
-        zip_ref.extractall(".")
-    # Create the Flask app
-    print('finish Extract All')
+        with zipfile.ZipFile("data.zip","r") as zip_ref:
+            zip_ref.extractall(".")
+        # Create the Flask app
+        print('finish Extract All')
+    else:
+        print('File already exist')
+        
     # Presentation
     print("--------------------------------------------")
     print("    Recommendation System - MovieNChill")
