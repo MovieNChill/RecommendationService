@@ -58,8 +58,6 @@ def hello_world():
     return "Hello World!"
 @app.route('/recommend', methods=['POST'])
 def recommend():
-    if(recommendation_init_finished == False):
-        return "road not yet available, wait a moment"
     # Get the user_id and desired_genre from the request
     print("[LOG] Received request!")
     user_id = request.json['user_id']
