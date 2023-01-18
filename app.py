@@ -1,8 +1,21 @@
 from flask import Flask, request, jsonify
-#from surprise import Reader, Dataset, SVD
-#import pandas as pd
+from surprise import Reader, Dataset, SVD
+import pandas as pd
 
+import requests
+import zipfile
+
+
+url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
+r = requests.get(url, allow_redirects=True)
+
+open('data.zip', 'wb').write(r.content)
+print('finish download Zip')
+
+with zipfile.ZipFile("data.zip","r") as zip_ref:
+    zip_ref.extractall(".")
 # Create the Flask app
+print('finish Extract All')
 app = Flask(__name__)
 """
 # Presentation
@@ -13,14 +26,14 @@ print("--------------------------------------------")
 print("----------------DATA LOADING----------------")
 # Load the dataset with data ratings
 print("[LOG] Loading ratings dataset...")
-ratings_data = pd.read_csv('data/ratings.csv')
+ratings_data = pd.read_csv('ml-latest/ratings.csv')
 ratings_reader = Reader()
 ratings_data = Dataset.load_from_df(ratings_data[['userId', 'movieId', 'rating']], ratings_reader)
 print("[SUCCESS] Ratings dataset loaded!")
 
 # Load the dataset with movies informations
 print("[LOG] Loading movies dataset...")
-movies_data = pd.read_csv('data/movies.csv')
+movies_data = pd.read_csv('ml-latest/movies.csv')
 print("[SUCCESS] Movies dataset loaded!")
 
 print("----------------TRAIN MODEL----------------")
