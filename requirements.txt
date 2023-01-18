@@ -1,4 +1,5 @@
 Flask==2.0.2
 scikit-surprise
+surprise
 pandas
 requests

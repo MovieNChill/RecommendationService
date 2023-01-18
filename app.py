@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 import zipfile
 
-
+print('BEGIN INIT')
 url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
 r = requests.get(url, allow_redirects=True)
 
