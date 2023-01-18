@@ -17,7 +17,7 @@ with zipfile.ZipFile("data.zip","r") as zip_ref:
 # Create the Flask app
 print('finish Extract All')
 app = Flask(__name__)
-"""
+
 # Presentation
 print("--------------------------------------------")
 print("    Recommendation System - MovieNChill")
@@ -43,11 +43,11 @@ algo = SVD()
 trainset = ratings_data.build_full_trainset()
 algo.fit(trainset)
 print("[SUCCESS] Model trained!")
-"""
+
 @app.route('/', methods=['GET'])
 def hello_world():
     return "Hello World!"
-"""
+
 @app.route('/recommend', methods=['POST'])
 def recommend():
     # Get the user_id and desired_genre from the request
@@ -71,6 +71,6 @@ def recommend():
     recommended_movie_id = genre_predictions[0][0]
     recommended_movie_info = movies_data.loc[movies_data['movieId'] == recommended_movie_id]
     return jsonify({'recommended_movie': recommended_movie_info.to_dict()})
-"""
+
 if __name__ == '__main__':
   app.run()
