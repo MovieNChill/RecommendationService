@@ -8,22 +8,32 @@ import threading
 import requests
 import zipfile
 
-global recommendation_init_finished 
+# SHARED VALUES
 recommendation_init_finished = False
-lock = threading.Lock()
-app = Flask(__name__)
+algo = SVD()
+movies_data = None
 
-
-
+def parallelize_functions(*functions):
+    processes = []
+    for function in functions:
+        p = threading.Thread(target=function)
+        p.start()
+        processes.append(p)
+    for p in processes:
+        p.join()
 
 def init_recommandation():
+    global recommendation_init_finished
+    global algo
+    global movies_data
     #Extraction donnée
-    with lock:
-	    recommendation_init_finished = True
-    print('BEGIN INIT', recommendation_init_finished)
+
+  
+    
+    print('BEGIN INIT')
     url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
     r = requests.get(url, allow_redirects=True)
-    return "toto"
+
     open('data.zip', 'wb').write(r.content)
     print('finish download Zip')
 
@@ -52,20 +62,28 @@ def init_recommandation():
     print("----------------TRAIN MODEL----------------")
     print("[LOG] Training the model...")
     print("[LOG] This may take a while...")
-    algo = SVD()
+   
     trainset = ratings_data.build_full_trainset()
     algo.fit(trainset)
     print("[SUCCESS] Model trained!")
+    recommendation_init_finished = True
 
-    return "Model trained"
+       
+
+app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def hello_world():
-    return "Hello World!"
+    global recommendation_init_finished
+    return jsonify({"title": "Welcome to the movieNChill recommendation algorithm!", "ready": recommendation_init_finished })
+
 @app.route('/recommend', methods=['POST'])
 def recommend():
-    print(recommendation_init_finished)
+    global algo
+    global movies_data
+    global recommendation_init_finished
     if(recommendation_init_finished == False):
-        return "road not yet available, wait a moment"
+        return "algo recommendation has not finished training, wait a moment"
+
     # Get the user_id and desired_genre from the request
     print("[LOG] Received request!")
     user_id = request.json['user_id']
@@ -73,7 +91,7 @@ def recommend():
     print("User ID: " + str(user_id))
     print("Desired genre: " + desired_genre)
 
-    # Search of movies that match
+    # Search of movies that matchs
     print("[LOG] Searching for movies that match..")
     genre_movies = movies_data.loc[movies_data['genres'] == desired_genre]
     genre_predictions = []
@@ -90,12 +108,10 @@ def recommend():
 
 def runAPP():
     print('RUN APP')
-    app.run()
+    app.run(host='0.0.0.0', port=5001)
+
 if __name__ == '__main__':
-  t1 = threading.Thread(target=runAPP)
-  t1.start()
-  t2 = threading.Thread(target=init_recommandation)
-  t2.start()
+     parallelize_functions(runAPP, init_recommandation)
   
 
 
