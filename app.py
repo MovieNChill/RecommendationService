@@ -18,7 +18,7 @@ def init_recommandation():
     print('BEGIN INIT')
     url = 'https://files.grouplens.org/datasets/movielens/ml-latest.zip'
     r = requests.get(url, allow_redirects=True)
-    return "toto"
+    
     open('data.zip', 'wb').write(r.content)
     print('finish download Zip')
 
