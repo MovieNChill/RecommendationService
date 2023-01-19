@@ -109,7 +109,7 @@ def recommend():
 
 def runAPP():
     print('RUN APP')
-    app.run(port=8000)
+    app.run( use_reloader=False, host='0.0.0.0', port=8000)
 
 if __name__ == '__main__':
      parallelize_functions(runAPP, init_recommandation)
